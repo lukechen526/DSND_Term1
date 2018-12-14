@@ -1,5 +1,6 @@
 import argparse
 import time
+import datetime
 import os
 from collections import OrderedDict
 
@@ -171,7 +172,7 @@ def train(data_dir, save_dir, architecture, learning_rate, hidden_units, epochs,
     print(f"Finished training on {device}. Total training time: {time.time()-start:.2f} sec")
     
     # Save to checkpoint 
-    save_path = os.path.join(save_dir, 'checkpoint.pth')
+    save_path = os.path.join(save_dir, f'checkpoint_{architecture}_{datetime.datetime.now():%Y-%m-%d}.pth')
     checkpoint = { 'model': model, 
                   'class_to_idx': class_to_idx }
     torch.save(checkpoint, save_path)
