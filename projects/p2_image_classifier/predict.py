@@ -77,8 +77,13 @@ def predict(image_path, ckpt_path, topk=5, gpu=True, cat_to_name=''):
         ps = torch.exp(logps)
         top_p, top_class_idx = ps.topk(topk, dim=1)
 
+        top_class_idx = top_class_idx.squeeze().tolist()
+        
+        if not isinstance(top_class_idx, list):
+            top_class_idx = [top_class_idx]
+        
         # Convert top_class_idx to actual class        
-        top_class = [idx_to_class[idx] for idx in top_class_idx.squeeze().tolist()]
+        top_class = [idx_to_class[idx] for idx in top_class_idx]
         
         # Convert class index to class name if cat_to_name is present
         
