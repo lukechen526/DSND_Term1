@@ -173,7 +173,9 @@ def train(data_dir, save_dir, architecture, learning_rate, hidden_units, epochs,
     
     # Save to checkpoint 
     save_path = os.path.join(save_dir, f'checkpoint_{architecture}_{datetime.datetime.now():%Y-%m-%d}.pth')
-    checkpoint = { 'model': model, 
+    checkpoint = { 'state_dict': model.state_dict(),
+                  'arch': architecture,
+                  'hidden_units': hidden_units,
                   'class_to_idx': class_to_idx }
     torch.save(checkpoint, save_path)
     print(f"Saved checkpoint to {save_path}")

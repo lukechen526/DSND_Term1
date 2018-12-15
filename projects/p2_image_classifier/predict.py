@@ -1,10 +1,13 @@
 import argparse
 import json
 import os
+from collections import OrderedDict
 
 import numpy as np
 from PIL import Image
 import torch
+from torch import nn
+from torchvision import models
 
 parser = argparse.ArgumentParser()
 
@@ -60,8 +63,36 @@ def predict(image_path, ckpt_path, topk=5, gpu=True, cat_to_name=''):
    
     # Load checkpoint filee
     checkpoint = torch.load(ckpt_path)
-    model = checkpoint['model']
+    architecture = checkpoint['arch']
+    state_dict = checkpoint['state_dict']
     class_to_idx = checkpoint['class_to_idx']
+    hidden_units = checkpoint['hidden_units']
+    
+    # Re-create the model and classifier based on checkpoint 
+    
+    model_cls = getattr(models, architecture)
+    model = model_cls(pretrained=True)
+    
+    for param in model.parameters():
+        param.requires_grad = False
+
+    #figure out the input size to the classifier with a fake input 
+    model.classifier = nn.Sequential(nn.ReLU())
+    test_input = torch.randn(1, 3, 224, 224)
+    test_output = model.forward(test_input).view(1, -1)
+    
+    # Replace with classifier
+    classifier = nn.Sequential(OrderedDict([
+                              ('fc1', nn.Linear(test_output.shape[1], hidden_units)),
+                              ('relu', nn.ReLU()),
+                              ('fc2', nn.Linear(hidden_units, 102)),
+                              ('output', nn.LogSoftmax(dim=1))
+                              ]))
+    
+    model.classifier = classifier
+    model.load_state_dict(state_dict)
+    
+    
     
     # Invert class_to_idx 
     idx_to_class = {val: key for key, val in class_to_idx.items()}
