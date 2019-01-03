@@ -60,7 +60,7 @@ def predict(image_path, ckpt_path, topk=5, gpu=True, cat_to_name=''):
     """ Predict the class (or classes) of an image using a trained deep learning model.
     """
     device = "cuda" if gpu and torch.cuda.is_available() else "cpu"
-   
+    
     # Load checkpoint filee
     checkpoint = torch.load(ckpt_path)
     architecture = checkpoint['arch']
