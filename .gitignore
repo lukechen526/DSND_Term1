@@ -5,3 +5,4 @@ Cat_Dog_data
 flowers
 checkpoints/
 projects/p3_customer_segment/*.csv
+**/.DS_Store
